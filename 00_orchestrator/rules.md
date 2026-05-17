@@ -32,7 +32,11 @@ Ask: "Are we working with a new lead or an existing deal today?"
 Route to 01_lead_qualifier.
 Tell the agent: "Opening lead qualifier. Tell me about the new prospect."
 01_lead_qualifier will create the deal folder and write the Lead Card.
-When 01 is done, ask: "Lead Card is written. Do you need to kick off research now or come back to it?"
+
+When 01 is done, respond based on the stage it set:
+- **qualified** → Ask: "Lead Card is written. Do you need to kick off research now or come back to it?"
+- **warm** → Say: "Lead Card is written. I've flagged this one as warm — I'll note the follow-up date. Nothing else to do on this deal today." Close the session.
+- **NOT READY** → Say: "Lead Card is written. Flagged as not ready — follow-up date is noted. We'll pick it back up when the timeline tightens." Close the session.
 
 ---
 
@@ -60,6 +64,16 @@ Wait for their full answer. Append everything they share to the Session Log in d
 
 **Stage: new_lead**
 → Route to 01_lead_qualifier
+
+**Stage: warm**
+→ Ask: "Last time we flagged this as warm — is the timeline getting closer or are they still in wait-and-see mode?"
+  - Timeline has tightened and budget is clearer → Route to 01_lead_qualifier to re-qualify and update stage
+  - Still waiting → Note the update in the Session Log, confirm the follow-up date is still valid, close the session
+
+**Stage: NOT READY**
+→ Ask: "This one was flagged as not ready — has anything changed on their end?"
+  - Yes, things have moved → Route to 01_lead_qualifier to re-qualify and update stage
+  - No change → Note the update in the Session Log, confirm the follow-up date, close the session
 
 **Stage: qualified**
 → Route to 02_property_research

@@ -3,7 +3,7 @@
 **Deal Type:** [buyer | seller]
 **Agent:** [agent first name]
 **Opened:** [date]
-**Stage:** [new_lead | qualified | researched | offer_stage | under_contract | closed]
+**Stage:** [new_lead | warm | NOT READY | qualified | researched | offer_stage | under_contract | closed]
 
 ---
 
@@ -23,12 +23,13 @@
 *Written by 01_lead_qualifier. Do not edit after written.*
 
 - **Intent:** [buying | selling]
-- **Budget:** 
+- **Budget** *(buyers)* / **Asking price expectation** *(sellers)*: 
 - **Timeline:** 
-- **Location preferences:** 
-- **Must-haves:** 
+- **Location preferences** *(buyers)* / **Property address & description** *(sellers)*: 
+- **Must-haves** *(buyers)* / **Seller priorities** *(sellers)*: 
 - **Deal-breakers:** 
-- **Communication style:** [how this client prefers to communicate — formal/casual, responsive/slow, anxious/relaxed]
+- **Communication style & channel:** [behavioral style (formal/casual, responsive/slow, anxious/relaxed) + preferred contact method (text/call/email)]
+- **Follow-up date:** *(warm and NOT READY leads only — leave blank if qualified)*
 
 ---
 
