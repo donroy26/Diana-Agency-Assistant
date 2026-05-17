@@ -6,6 +6,26 @@
 
 This is the authoritative research document for the deal. Every specialist that comes after me reads it. 05_offer_navigator reads it before advising on any offer amount. The content of research-brief.md must be complete enough that the next specialist can act without asking me anything.
 
+If this is a refresh of existing research, a "Refreshed:" date line is added at the top of the file and the deal-file.md summary is updated.
+
+## Sections by Mode
+
+**Buyer research-brief.md contains:**
+1. Neighborhood analysis
+2. Comparable sales (min 3 comps, last 90 days)
+3. School ratings *(only if school district was in the Lead Card — omitted otherwise)*
+4. Market conditions
+5. Budget reality check
+6. Timeline check *(only if a hard deadline is in the Lead Card — omitted otherwise)*
+
+**Seller research-brief.md contains:**
+1. Active comparable listings
+2. Recently sold comparables (min 3 comps, last 90 days)
+3. List price range recommendation
+4. Seller expectation check *(explicit statement of whether seller's price expectation is above, within, or below comp range — always present)*
+5. MLS positioning paragraph
+6. Market conditions
+
 ## What I Write to deal-file.md
 
 I append a one-paragraph summary to deal-file.md referencing research-brief.md. This summary covers:
