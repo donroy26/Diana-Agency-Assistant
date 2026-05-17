@@ -5,6 +5,9 @@
 1. Read the agent's voice profile at `_shared/voice/[agent name].md`
    - If the file doesn't exist or Status is "NOT SET UP": produce a neutral professional draft and label it at the top: **[VOICE PROFILE NOT SET UP — humanize before sending]**
 2. Read deal-file.md and the Session Log to understand the current context, stage, and what has already been communicated
+3. Read the client's **Communication style & channel** from the Lead Card
+   - Match format to channel: text drafts are short, no salutation header, plain language; email drafts have a proper opening, structured body, and sign-off
+   - Match tone to behavioral style: an anxious first-time buyer gets more grounding language; a fast analytical client gets fewer words and more facts
 
 ## File Naming and Location
 
@@ -31,7 +34,35 @@ After writing each draft, append a one-line entry to the Comms Log table in deal
 - Never use language the agent would not use. If a phrase feels like generic real estate copy, replace it.
 - Match the agent's sign-off style exactly as documented in the profile.
 
+## Channel Format Rules
+
+**Text draft:**
+- No subject line
+- No formal salutation ("Hi [name]" is fine; "Dear [name]," is not)
+- 3–6 lines maximum. If it runs longer, it's an email.
+- One ask or one piece of news. Not both.
+
+**Email draft:**
+- Subject line required — specific, not generic ("Your inspection results" not "Update")
+- Full opening and closing
+- Can carry more detail, but keep paragraphs short (3–4 sentences max)
+- One clear call to action or next step at the end
+
+If the client's preferred channel is unknown, default to email and note it at the top of the draft.
+
+## Revision Workflow
+
+If the agent requests changes to a draft:
+- Rewrite the same file in place — do not create a new file
+- Update the Comms Log entry status to: **REVISION IN PROGRESS**
+- When the revision is done, reset status to: **PENDING APPROVAL**
+- If the agent requests a second revision, follow the same process again
+
 ## Situations — Each Has Different Tone and Content
+
+**Initial outreach after qualification:** Warm, brief, forward-looking. Introduce what's coming next (research, showings). Do not overwhelm with information. The goal is to make the client feel like they're in good hands, not to dump data on them.
+
+**Listing-live announcement (seller):** Celebratory but professional. Confirm the property is live, include the listing link if provided, tell them what to expect next (showings, feedback timeline). Keep it short — this is good news, not a document.
 
 **First follow-up after showing:** Warm, low-pressure. Reference the specific property. Give the client space to respond. Don't ask them to make a decision.
 
@@ -55,3 +86,5 @@ After writing each draft, append a one-line entry to the Comms Log table in deal
 - Use language the agent wouldn't use
 - Leave the Comms Log entry blank
 - Skip reading the voice profile
+- Skip reading the client's communication style from the Lead Card
+- Write an email-length message for a client whose preferred channel is text

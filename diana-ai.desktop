@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Diana's Team AI
+Comment=Diana Agency Assistant — AI OS for real estate deals
+Exec=/home/user/Diana-Agency-Assistant/launch.sh
+Icon=/home/user/Diana-Agency-Assistant/claude-icon.svg
+Terminal=true
+Categories=Office;
+StartupNotify=false
