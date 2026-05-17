@@ -48,5 +48,19 @@
 ---
 
 ## Deal Jacket
-*To be populated by 04_transaction_coordinator once offer is accepted.*
-*(Not yet active)*
+
+### Open Items
+- Tours not yet scheduled — three Mueller properties identified in research brief, Jordan to coordinate showings
+- Offer must be submitted by May 19 at latest to hit June 10 closing date
+
+### Risk Flags
+- URGENT: Hard close deadline June 10 (job starts June 15). Offer must be accepted by May 19 at latest or timeline collapses.
+
+### Key Dates
+| Milestone | Target Date | Status |
+|-----------|-------------|--------|
+| Showings scheduled | 2026-05-13 | PENDING |
+| Offer submitted | 2026-05-19 | PENDING |
+| Option period expires | TBD | PENDING |
+| Earnest money due | TBD | PENDING |
+| Closing | 2026-06-10 | PENDING |

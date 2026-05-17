@@ -1,0 +1,801 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diana's Team — Deal Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f5f4f1;
+    color: #1a1a1a;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header-left h1 { font-size: 18px; font-weight: 600; letter-spacing: 0.02em; }
+  .header-left p { font-size: 12px; color: #888; margin-top: 2px; }
+  .header-right { font-size: 12px; color: #666; text-align: right; }
+  .header-right strong { display: block; color: #aaa; margin-bottom: 2px; }
+
+  /* STATS BAR */
+  .stats-bar {
+    background: #fff;
+    border-bottom: 1px solid #e8e6e1;
+    padding: 16px 32px;
+    display: flex;
+    gap: 40px;
+  }
+  .stat { }
+  .stat-value { font-size: 24px; font-weight: 700; line-height: 1; }
+  .stat-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 3px; }
+  .stat-value.urgent { color: #d0411a; }
+
+  /* MAIN LAYOUT */
+  .main { display: flex; height: calc(100vh - 117px); }
+
+  /* PIPELINE */
+  .pipeline {
+    flex: 1;
+    overflow-x: auto;
+    padding: 24px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #888;
+    margin-bottom: 12px;
+  }
+
+  /* STAGE COLUMNS */
+  .pipeline-board {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .stage-col {
+    min-width: 220px;
+    max-width: 220px;
+  }
+
+  .stage-header {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 6px 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+
+  .stage-new_lead .stage-header { background: #e8e6e1; color: #666; }
+  .stage-qualified .stage-header { background: #dbeafe; color: #1d4ed8; }
+  .stage-researched .stage-header { background: #fef3c7; color: #92400e; }
+  .stage-offer_stage .stage-header { background: #ede9fe; color: #5b21b6; }
+  .stage-under_contract .stage-header { background: #d1fae5; color: #065f46; }
+
+  /* DEAL CARDS */
+  .deal-card {
+    background: #fff;
+    border: 1px solid #e8e6e1;
+    border-radius: 8px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    margin-bottom: 10px;
+    position: relative;
+  }
+  .deal-card:hover { border-color: #1a1a1a; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .deal-card.active-card { border-color: #1a1a1a; box-shadow: 0 2px 12px rgba(0,0,0,0.12); }
+
+  .deal-card.has-risk::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: #d0411a;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .card-client { font-size: 14px; font-weight: 600; margin-bottom: 8px; line-height: 1.3; }
+  .card-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+
+  .badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .badge-buyer { background: #dbeafe; color: #1d4ed8; }
+  .badge-seller { background: #fce7f3; color: #9d174d; }
+  .badge-agent { background: #f3f4f6; color: #374151; }
+
+  .card-summary { font-size: 12px; color: #666; line-height: 1.5; }
+
+  .risk-indicator {
+    margin-top: 8px;
+    font-size: 11px;
+    color: #d0411a;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .risk-indicator::before { content: '⚠'; }
+
+  .last-activity {
+    margin-top: 8px;
+    font-size: 11px;
+    color: #aaa;
+  }
+
+  /* CLOSED / CANCELLED SECTION */
+  .closed-section { }
+
+  .closed-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .closed-card {
+    background: #fff;
+    border: 1px solid #e8e6e1;
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .closed-card:hover { border-color: #aaa; }
+  .closed-card.active-card { border-color: #1a1a1a; }
+
+  .closed-status {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 3px 8px;
+    border-radius: 4px;
+    min-width: 70px;
+    text-align: center;
+  }
+  .status-closed { background: #d1fae5; color: #065f46; }
+  .status-cancelled { background: #f3f4f6; color: #6b7280; }
+
+  .closed-info { flex: 1; }
+  .closed-client { font-size: 13px; font-weight: 600; }
+  .closed-meta { font-size: 11px; color: #888; margin-top: 2px; }
+
+  .closed-result { font-size: 12px; color: #666; text-align: right; }
+
+  /* DETAIL PANEL */
+  .detail-panel {
+    width: 420px;
+    min-width: 420px;
+    background: #fff;
+    border-left: 1px solid #e8e6e1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.2s ease;
+  }
+  .detail-panel.hidden { width: 0; min-width: 0; border: none; }
+
+  .panel-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #e8e6e1;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 10;
+  }
+  .panel-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #888;
+    line-height: 1;
+    padding: 4px;
+  }
+  .panel-close:hover { color: #1a1a1a; }
+  .panel-client { font-size: 18px; font-weight: 700; margin-bottom: 6px; padding-right: 32px; }
+  .panel-meta { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  .panel-body { overflow-y: auto; flex: 1; }
+
+  .panel-section {
+    padding: 16px 24px;
+    border-bottom: 1px solid #f0ede8;
+  }
+  .panel-section:last-child { border-bottom: none; }
+
+  .panel-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #aaa;
+    margin-bottom: 10px;
+  }
+
+  .risk-list { list-style: none; }
+  .risk-list li {
+    font-size: 13px;
+    color: #d0411a;
+    padding: 6px 0;
+    border-bottom: 1px solid #fef2f2;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .risk-list li::before { content: '⚠'; flex-shrink: 0; }
+  .risk-list li:last-child { border: none; }
+
+  .open-list { list-style: none; }
+  .open-list li {
+    font-size: 13px;
+    color: #374151;
+    padding: 5px 0;
+    border-bottom: 1px solid #f5f4f1;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .open-list li::before { content: '·'; color: #aaa; flex-shrink: 0; font-size: 18px; line-height: 1; }
+  .open-list li:last-child { border: none; }
+
+  .lead-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .lead-field { }
+  .lead-field-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
+  .lead-field-value { font-size: 12px; color: #374151; line-height: 1.4; }
+  .lead-field.full { grid-column: 1 / -1; }
+
+  .session-log { }
+  .session-entry {
+    padding: 10px 0;
+    border-bottom: 1px solid #f0ede8;
+  }
+  .session-entry:last-child { border: none; }
+  .session-date { font-size: 11px; color: #aaa; font-weight: 600; margin-bottom: 4px; }
+  .session-text { font-size: 12px; color: #374151; line-height: 1.5; }
+  .session-work { font-size: 11px; color: #888; margin-top: 3px; }
+
+  .comms-list { }
+  .comms-entry {
+    padding: 8px 0;
+    border-bottom: 1px solid #f0ede8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .comms-entry:last-child { border: none; }
+  .comms-date { font-size: 12px; color: #374151; }
+  .comms-status {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 10px;
+  }
+  .status-approved { background: #d1fae5; color: #065f46; }
+  .status-pending { background: #fef3c7; color: #92400e; }
+
+  .dates-table { width: 100%; border-collapse: collapse; }
+  .dates-table td { font-size: 12px; padding: 5px 0; vertical-align: top; }
+  .dates-table td:first-child { color: #888; width: 160px; }
+  .dates-table td:last-child { font-weight: 500; }
+  .dates-table tr { border-bottom: 1px solid #f0ede8; }
+  .dates-table tr:last-child td { border: none; }
+  .date-complete { color: #065f46; }
+  .date-urgent { color: #d0411a; font-weight: 700; }
+  .date-pending { color: #374151; }
+
+  .empty-col {
+    font-size: 12px;
+    color: #bbb;
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .no-selection {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    padding: 40px;
+    color: #aaa;
+  }
+  .no-selection p { font-size: 14px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>Diana's Real Estate Team</h1>
+    <p>Deal Dashboard</p>
+  </div>
+  <div class="header-right">
+    <strong>Last refreshed</strong>
+    <span id="refresh-date">—</span>
+  </div>
+</div>
+
+<div class="stats-bar" id="stats-bar"></div>
+
+<div class="main">
+  <div class="pipeline" id="pipeline-view"></div>
+  <div class="detail-panel hidden" id="detail-panel">
+    <div class="panel-header">
+      <button class="panel-close" onclick="closePanel()">×</button>
+      <div class="panel-client" id="panel-client"></div>
+      <div class="panel-meta" id="panel-meta"></div>
+    </div>
+    <div class="panel-body" id="panel-body"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DEAL DATA -- regenerated by refresh-dashboard.bat
+// ============================================================
+const LAST_REFRESHED = "2026-05-17";
+
+const DEALS = [
+  {
+    id: "CALLAHAN-2026-005",
+    client: "Derek Callahan",
+    type: "buyer",
+    agent: "Marcus",
+    stage: "cancelled",
+    opened: "2026-04-01",
+    lastSession: "2026-05-14",
+    summary: "Derek went quiet after the research brief. Last contact was April 28 — he texted saying he was \"thinking it over.\" Two follow-up attempts since then (May 5, May 12), no response. Marking as cancelled. May re-engage later.",
+    riskFlags: [],
+    openItems: [],
+    leadCard: {
+      intent: "buying",
+      budget: "$350,000–$375,000 (firm — said he cannot go higher)",
+      timeline: "\"When the right thing comes up\" — no hard deadline",
+      location: "South Congress (SoCo) corridor or Bouldin Creek. Walkability to bars, restaurants, and live music. The vibe matters as much as the specs.",
+      mustHaves: "At least 1BR (open to studio if right location), outdoor space (patio or yard), character (no new construction cookie-cutter)",
+      dealBreakers: "Suburbs, HOAs, anywhere that requires a car to get to a bar",
+      commStyle: "Informal. Texts only — no calls. Responds quickly when engaged, then goes silent. Does not like feeling pressured."
+    },
+    sessions: [
+      { date: "2026-04-01", update: "Derek reached out via Instagram DM after seeing a listing Marcus posted. First-time buyer, early 30s. Knows South Austin well, very specific about the vibe he wants.", work: "01_lead_qualifier — Lead Card written. Deal folder created." },
+      { date: "2026-04-08", update: "Quick call with Derek. He confirmed South Congress area. Budget is firm at $375k — said he can't go higher. Research for Bouldin Creek and South Congress at that price point.", work: "02_property_research — Research Brief written. South Congress/Bouldin Creek buyer, $350-375k." },
+      { date: "2026-05-14", update: "Derek went quiet after the research brief. Last contact was April 28 — he texted saying he was \"thinking it over.\" Two follow-up attempts since then (May 5, May 12), no response. Marking as cancelled. May re-engage later.", work: "Marking deal as cancelled. No further action." }
+    ],
+    comms: [
+      { date: "2026-04-08", file: "2026-04-08-research-followup", status: "APPROVED" },
+      { date: "2026-05-05", file: "2026-05-05-checkin", status: "APPROVED — no response" },
+      { date: "2026-05-12", file: "2026-05-12-final-checkin", status: "APPROVED — no response" }
+    ],
+    keyDates: [
+
+    ]
+  },
+  {
+    id: "CHEN-2026-001",
+    client: "Kevin & Lisa Chen",
+    type: "buyer",
+    agent: "Marcus",
+    stage: "under_contract",
+    opened: "2026-04-03",
+    lastSession: "2026-04-25",
+    summary: "Offer accepted at $587,000 with $5k closing cost concessions. Contract executed. Option period waived per strategy. Closing set for May 30.",
+    riskFlags: [      "⚠️ URGENT: Appraisal report due TODAY (2026-05-16). Not yet received. Contact lender immediately.",
+      "Inspection flagged aging HVAC unit (13 years). Seller agreed verbally to repair capacitor. Get this in writing before closing disclosure."],
+    openItems: [      "Appraisal report due by 2026-05-16 — following up with lender today",
+      "Seller agreed to repair HVAC capacitor before close — need written confirmation from listing agent"],
+    leadCard: {
+      intent: "buying",
+      budget: "$575,000–$600,000",
+      timeline: "Close before August 2026 (Lisa due in October, want to be settled)",
+      location: "East Austin — 78702, 78721. Walking distance to coffee, restaurants. Close to Dell Seton preferred but not required.",
+      mustHaves: "Minimum 3 bedrooms, dedicated home office space or room that could convert, yard (any size), natural light",
+      dealBreakers: "No condos. No HOA with restrictive rental rules. Not interested in major foundation work.",
+      commStyle: "Kevin handles logistics, texts back within the hour. Lisa prefers email for anything with details. Both are analytical. They appreciate data over reassurance."
+    },
+    sessions: [
+      { date: "2026-04-03", update: "First session. Kevin and Lisa Chen came into the open house on Chicon St last Sunday. Kevin reached out Monday morning via email.", work: "01_lead_qualifier — Lead Card written. Deal folder created." },
+      { date: "2026-04-07", update: "Had a call with both of them. They confirmed East Austin is the priority. Lisa is pregnant, due in October. Timeline is firm.", work: "02_property_research — Research Brief written for East Austin buyer, $575-600k range." },
+      { date: "2026-04-22", update: "They toured 4 properties. Loved the one on Lydia St — 3/2, 1,450 sqft, listed at $589k. Want to make an offer. One competing offer rumored.", work: "05_offer_navigator — Offer Summary written. Recommended $587k with $5k seller concessions. Strategy: waive option period, strong earnest money." },
+      { date: "2026-04-25", update: "Offer accepted at $587,000 with $5k closing cost concessions. Contract executed. Option period waived per strategy. Closing set for May 30.", work: "04_transaction_coordinator — Deal Jacket set up. Key dates and document checklist populated." }
+    ],
+    comms: [
+      { date: "2026-04-07", file: "2026-04-07-initial-followup", status: "APPROVED" },
+      { date: "2026-04-23", file: "2026-04-23-offer-submitted", status: "APPROVED" },
+      { date: "2026-05-05", file: "2026-05-05-inspection-update", status: "APPROVED" }
+    ],
+    keyDates: [
+      { milestone: "Option period", date: "N/A — waived", status: "complete" },
+      { milestone: "Earnest money due", date: "2026-04-27", status: "complete" },
+      { milestone: "Title commitment", date: "2026-05-09", status: "complete" },
+      { milestone: "Survey deadline", date: "2026-05-14", status: "complete" },
+      { milestone: "Appraisal deadline", date: "2026-05-16", status: "urgent" },
+      { milestone: "Loan approval deadline", date: "2026-05-23", status: "pending" },
+      { milestone: "Final walkthrough", date: "2026-05-29", status: "pending" },
+      { milestone: "Closing", date: "2026-05-30", status: "pending" }
+    ]
+  },
+  {
+    id: "NGUYEN-2026-003",
+    client: "Priya Nguyen",
+    type: "buyer",
+    agent: "Jordan",
+    stage: "researched",
+    opened: "2026-05-05",
+    lastSession: "2026-05-08",
+    summary: "Had a video call with Priya. She confirmed Mueller or East Austin. Very specific about walkability. She doesn't own a car. Showed her the research brief. She wants to see properties in Mueller first.",
+    riskFlags: [      "URGENT: Hard close deadline June 10 (job starts June 15). Offer must be accepted by May 19 at latest or timeline collapses."],
+    openItems: [      "Tours not yet scheduled — three Mueller properties identified in research brief, Jordan to coordinate showings",
+      "Offer must be submitted by May 19 at latest to hit June 10 closing date"],
+    leadCard: {
+      intent: "buying",
+      budget: "$425,000–$450,000 (pre-approved at $455k)",
+      timeline: "Must close by June 10, 2026 (job starts June 15 — hard deadline)",
+      location: "Mueller or East Austin. Walkability is non-negotiable. She does not own a car. Must be able to walk to groceries, coffee, and restaurants.",
+      mustHaves: "2BR minimum (needs home office), in-unit laundry, no stairs preferred (will consider one flight), low-maintenance outdoor space",
+      dealBreakers: "No car-dependent suburban locations. No properties requiring major work. She's moving from out of state and cannot manage a renovation remotely.",
+      commStyle: "Highly responsive via text. Prefers concise updates. Doesn't need every detail, just what she needs to act on. Analytical but trusts recommendations when the reasoning is clear. Moving alone, no partner to consult."
+    },
+    sessions: [
+      { date: "2026-05-05", update: "First session. Priya reached out through the website contact form. Relocating from Houston for a tech job at Dell — starts June 15. Needs to be settled before then. Tight timeline.", work: "01_lead_qualifier — Lead Card written. Deal folder created." },
+      { date: "2026-05-08", update: "Had a video call with Priya. She confirmed Mueller or East Austin. Very specific about walkability. She doesn't own a car. Showed her the research brief. She wants to see properties in Mueller first.", work: "02_property_research — Research Brief written. Mueller vs East Austin comparison for walkability-first buyer, $425-450k." }
+    ],
+    comms: [
+      { date: "2026-05-08", file: "2026-05-08-research-followup", status: "APPROVED" }
+    ],
+    keyDates: [
+      { milestone: "Showings scheduled", date: "2026-05-13", status: "pending" },
+      { milestone: "Offer submitted", date: "2026-05-19", status: "pending" },
+      { milestone: "Option period expires", date: "TBD", status: "pending" },
+      { milestone: "Earnest money due", date: "TBD", status: "pending" },
+      { milestone: "Closing", date: "2026-06-10", status: "pending" }
+    ]
+  },
+  {
+    id: "OKONKWO-2026-004",
+    client: "Marcus & Sarah Okonkwo",
+    type: "buyer",
+    agent: "Diana",
+    stage: "closed",
+    opened: "2026-02-10",
+    lastSession: "2026-04-12",
+    closedDate: "2026-04-12",
+    closedPrice: "$625,000",
+    summary: "Closed today. Keys handed over at 2pm. Sellers agreed to $3,500 credit for wiring. Smooth close.",
+    riskFlags: [],
+    openItems: [],
+    leadCard: {
+      intent: "buying",
+      budget: "$600,000–$650,000 (pre-approved at $650k)",
+      timeline: "Ideally close by April 2026. Flexible by 30 days.",
+      location: "Hyde Park, Rosedale, or Brentwood. Central Austin. Walkable to restaurants and coffee. Good elementary school zone (planning ahead).",
+      mustHaves: "Yard (real yard, not a patch), at least 3 bedrooms, character (no cookie-cutter builds), room for a home office",
+      dealBreakers: "No Domain-area suburbs. No HOA. Not interested in full gut rehabs.",
+      commStyle: "Marcus is the point of contact, responsive, prefers texts for quick updates, email for anything requiring decisions. Sarah reviews everything before they decide. Give them time to discuss. Don't rush."
+    },
+    sessions: [
+      { date: "2026-02-10", update: "Referral from past client James Adeyemi. Marcus and Sarah upgrading from their condo in Domain area. Want to be in central Austin. Pre-approved at $650k.", work: "01_lead_qualifier — Lead Card written." },
+      { date: "2026-02-14", update: "Met them at the coffee shop. Great clients, clear on what they want. Hyde Park or Rosedale strongly preferred. Schools matter now, planning to start a family.", work: "02_property_research — Research Brief written for Hyde Park/Rosedale/Brentwood, $600-650k buyer." },
+      { date: "2026-03-01", update: "Toured 6 properties over two weekends. Fell in love with a 1940s craftsman on Avenue F — 3/2, 1,680 sqft, original hardwoods, screened porch, good yard. Listed at $629k. No competing offers as of today.", work: "05_offer_navigator — Offer at $621k with $3k seller concessions. 10-day option, $12k earnest money." },
+      { date: "2026-03-05", update: "Counter came back at $627k, no concessions. We went back at $625k with $2k concessions. Accepted. Contract executed.", work: "04_transaction_coordinator — Deal Jacket initialized." },
+      { date: "2026-03-20", update: "Inspection came back. Mostly cosmetic, one issue: the knob-and-tube wiring in the attic. Not a dealbreaker but need to negotiate.", work: "03_client_communication — Inspection response email drafted. 04_transaction_coordinator — risk flag updated." },
+      { date: "2026-04-12", update: "Closed today. Keys handed over at 2pm. Sellers agreed to $3,500 credit for wiring. Smooth close.", work: "04_transaction_coordinator — Deal Jacket marked complete. 03_client_communication — post-close thank you drafted and sent." }
+    ],
+    comms: [
+      { date: "2026-02-15", file: "2026-02-15-initial-followup", status: "APPROVED" },
+      { date: "2026-03-02", file: "2026-03-02-offer-submitted", status: "APPROVED" },
+      { date: "2026-03-20", file: "2026-03-20-inspection-update", status: "APPROVED" },
+      { date: "2026-04-10", file: "2026-04-10-pre-close-checkin", status: "APPROVED" },
+      { date: "2026-04-12", file: "2026-04-12-post-close-thankyou", status: "APPROVED" }
+    ],
+    keyDates: [
+      { milestone: "Option period expires", date: "2026-03-15", status: "complete" },
+      { milestone: "Earnest money due", date: "2026-03-07", status: "complete" },
+      { milestone: "Title commitment", date: "2026-03-21", status: "complete" },
+      { milestone: "Survey deadline", date: "2026-03-28", status: "complete" },
+      { milestone: "Appraisal deadline", date: "2026-03-28", status: "complete" },
+      { milestone: "Loan approval deadline", date: "2026-04-05", status: "complete" },
+      { milestone: "Final walkthrough", date: "2026-04-11", status: "complete" },
+      { milestone: "Closing", date: "2026-04-12", status: "complete" }
+    ]
+  },
+  {
+    id: "RODRIGUEZ-2026-002",
+    client: "The Rodriguez Family",
+    type: "seller",
+    agent: "Diana",
+    stage: "offer_stage",
+    opened: "2026-04-20",
+    lastSession: "2026-05-12",
+    summary: "Listed at $398k on May 5. Three offers came in before the deadline yesterday. Roberto and Elena want help evaluating. They're leaning toward the cash offer but I want to make sure they understand the full picture.",
+    riskFlags: [],
+    openItems: [],
+    leadCard: {
+      intent: "selling",
+      budget: "Expecting $390,000–$415,000 based on neighborhood comps",
+      timeline: "Close by July 31, 2026. Flexible 2–3 weeks either direction.",
+      location: "",
+      mustHaves: "Clean close, minimal contingencies preferred. Want certainty over top dollar.",
+      dealBreakers: "Not interested in buyers who need to sell their home first (contingent sale). Will not do a leaseback longer than 14 days.",
+      commStyle: "Roberto makes the calls, Elena weighs in on decisions. Both want to understand the \"why\" behind recommendations, not just what to do. Roberto can be emotional about the house. Frame conversations carefully."
+    },
+    sessions: [
+      { date: "2026-04-20", update: "Roberto Rodriguez called in. He and his wife Elena have lived in their Round Rock home for 14 years. Kids are out of the house. Want to downsize to a condo closer to downtown Austin. No rush but want to be out by summer.", work: "01_lead_qualifier — Lead Card written. Deal folder created." },
+      { date: "2026-04-25", update: "Visited the property. Well maintained, updated kitchen (2021), original bathrooms. Great bones. Roberto mentioned they have an emotional connection. Been in the house since their kids were young.", work: "02_property_research — Research Brief written for Round Rock seller, 4/2.5, $390-410k range. MLS positioning drafted." },
+      { date: "2026-05-12", update: "Listed at $398k on May 5. Three offers came in before the deadline yesterday. Roberto and Elena want help evaluating. They're leaning toward the cash offer but I want to make sure they understand the full picture.", work: "05_offer_navigator — Offer Summary written. Three offers ranked and recommendation made." }
+    ],
+    comms: [
+      { date: "2026-05-01", file: "2026-05-01-listing-live", status: "APPROVED" }
+    ],
+    keyDates: [
+
+    ]
+  }
+];
+
+// ============================================================
+// DASHBOARD LOGIC
+// ============================================================
+
+const STAGE_ORDER = ["new_lead", "qualified", "researched", "offer_stage", "under_contract"];
+const STAGE_LABELS = {
+  new_lead: "New Lead",
+  qualified: "Qualified",
+  researched: "Researched",
+  offer_stage: "Offer Stage",
+  under_contract: "Under Contract"
+};
+
+let selectedId = null;
+
+function init() {
+  document.getElementById("refresh-date").textContent = LAST_REFRESHED;
+  renderStats();
+  renderPipeline();
+}
+
+function renderStats() {
+  const active = DEALS.filter(d => !["closed","cancelled"].includes(d.stage));
+  const urgent = DEALS.filter(d => d.riskFlags && d.riskFlags.length > 0);
+  const closed = DEALS.filter(d => d.stage === "closed");
+  const underContract = DEALS.filter(d => d.stage === "under_contract");
+
+  document.getElementById("stats-bar").innerHTML = `
+    <div class="stat">
+      <div class="stat-value">${active.length}</div>
+      <div class="stat-label">Active Deals</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">${underContract.length}</div>
+      <div class="stat-label">Under Contract</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value ${urgent.length > 0 ? 'urgent' : ''}">${urgent.length}</div>
+      <div class="stat-label">Risk Flags</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">${closed.length}</div>
+      <div class="stat-label">Closed This Year</div>
+    </div>
+  `;
+}
+
+function renderPipeline() {
+  const active = DEALS.filter(d => !["closed","cancelled"].includes(d.stage));
+  const closed = DEALS.filter(d => d.stage === "closed");
+  const cancelled = DEALS.filter(d => d.stage === "cancelled");
+
+  const colsHtml = STAGE_ORDER.map(stage => {
+    const deals = active.filter(d => d.stage === stage);
+    const cardsHtml = deals.length === 0
+      ? `<div class="empty-col">No deals</div>`
+      : deals.map(d => dealCardHtml(d)).join('');
+    return `
+      <div class="stage-col stage-${stage}">
+        <div class="stage-header">${STAGE_LABELS[stage]}</div>
+        ${cardsHtml}
+      </div>`;
+  }).join('');
+
+  const closedHtml = [...closed, ...cancelled].map(d => closedCardHtml(d)).join('');
+
+  document.getElementById("pipeline-view").innerHTML = `
+    <div>
+      <div class="section-label">Active Pipeline</div>
+      <div class="pipeline-board">${colsHtml}</div>
+    </div>
+    <div class="closed-section">
+      <div class="section-label">Closed & Cancelled</div>
+      <div class="closed-list">${closedHtml}</div>
+    </div>
+  `;
+}
+
+function dealCardHtml(d) {
+  const hasRisk = d.riskFlags && d.riskFlags.length > 0;
+  const activeClass = selectedId === d.id ? 'active-card' : '';
+  const riskHtml = hasRisk ? `<div class="risk-indicator">${d.riskFlags[0].substring(0, 60)}${d.riskFlags[0].length > 60 ? '…' : ''}</div>` : '';
+  const days = daysSince(d.lastSession);
+  return `
+    <div class="deal-card ${hasRisk ? 'has-risk' : ''} ${activeClass}" onclick="selectDeal('${d.id}')">
+      <div class="card-client">${d.client}</div>
+      <div class="card-meta">
+        <span class="badge badge-${d.type}">${d.type}</span>
+        <span class="badge badge-agent">${d.agent}</span>
+      </div>
+      <div class="card-summary">${d.summary}</div>
+      ${riskHtml}
+      <div class="last-activity">Last session ${days} ago</div>
+    </div>`;
+}
+
+function closedCardHtml(d) {
+  const activeClass = selectedId === d.id ? 'active-card' : '';
+  const statusClass = d.stage === 'closed' ? 'status-closed' : 'status-cancelled';
+  const result = d.stage === 'closed' ? `Closed ${d.closedDate} · ${d.closedPrice}` : `Cancelled ${d.lastSession}`;
+  return `
+    <div class="closed-card ${activeClass}" onclick="selectDeal('${d.id}')">
+      <span class="closed-status ${statusClass}">${d.stage}</span>
+      <div class="closed-info">
+        <div class="closed-client">${d.client}</div>
+        <div class="closed-meta">${d.type} · ${d.agent} · Opened ${d.opened}</div>
+      </div>
+      <div class="closed-result">${result}</div>
+    </div>`;
+}
+
+function selectDeal(id) {
+  selectedId = id;
+  const deal = DEALS.find(d => d.id === id);
+  if (!deal) return;
+
+  renderPipeline();
+
+  const panel = document.getElementById("detail-panel");
+  panel.classList.remove("hidden");
+
+  document.getElementById("panel-client").textContent = deal.client;
+  document.getElementById("panel-meta").innerHTML = `
+    <span class="badge badge-${deal.type}">${deal.type}</span>
+    <span class="badge badge-agent">${deal.agent}</span>
+    <span class="badge badge-agent">${deal.id}</span>
+  `;
+
+  let bodyHtml = '';
+
+  // Risk flags
+  if (deal.riskFlags && deal.riskFlags.length > 0) {
+    bodyHtml += `
+      <div class="panel-section">
+        <div class="panel-section-title">Risk Flags</div>
+        <ul class="risk-list">${deal.riskFlags.map(r => `<li>${r}</li>`).join('')}</ul>
+      </div>`;
+  }
+
+  // Open items
+  if (deal.openItems && deal.openItems.length > 0) {
+    bodyHtml += `
+      <div class="panel-section">
+        <div class="panel-section-title">Open Items</div>
+        <ul class="open-list">${deal.openItems.map(o => `<li>${o}</li>`).join('')}</ul>
+      </div>`;
+  }
+
+  // Key dates
+  if (deal.keyDates && deal.keyDates.length > 0) {
+    const rows = deal.keyDates.map(kd => {
+      const cls = kd.status === 'complete' ? 'date-complete' : kd.status === 'urgent' ? 'date-urgent' : 'date-pending';
+      const icon = kd.status === 'complete' ? '✓' : kd.status === 'urgent' ? '⚠' : '·';
+      return `<tr><td>${kd.milestone}</td><td class="${cls}">${icon} ${kd.date}</td></tr>`;
+    }).join('');
+    bodyHtml += `
+      <div class="panel-section">
+        <div class="panel-section-title">Key Dates</div>
+        <table class="dates-table">${rows}</table>
+      </div>`;
+  }
+
+  // Lead card
+  if (deal.leadCard) {
+    const lc = deal.leadCard;
+    bodyHtml += `
+      <div class="panel-section">
+        <div class="panel-section-title">Lead Card</div>
+        <div class="lead-grid">
+          <div class="lead-field"><div class="lead-field-label">Intent</div><div class="lead-field-value">${lc.intent}</div></div>
+          <div class="lead-field"><div class="lead-field-label">Budget</div><div class="lead-field-value">${lc.budget}</div></div>
+          <div class="lead-field"><div class="lead-field-label">Timeline</div><div class="lead-field-value">${lc.timeline}</div></div>
+          <div class="lead-field"><div class="lead-field-label">Location</div><div class="lead-field-value">${lc.location}</div></div>
+          <div class="lead-field full"><div class="lead-field-label">Must-haves</div><div class="lead-field-value">${lc.mustHaves}</div></div>
+          <div class="lead-field full"><div class="lead-field-label">Deal-breakers</div><div class="lead-field-value">${lc.dealBreakers}</div></div>
+          <div class="lead-field full"><div class="lead-field-label">Communication style</div><div class="lead-field-value">${lc.commStyle}</div></div>
+        </div>
+      </div>`;
+  }
+
+  // Session log
+  if (deal.sessions && deal.sessions.length > 0) {
+    const sessionHtml = deal.sessions.map(s => `
+      <div class="session-entry">
+        <div class="session-date">${s.date}</div>
+        <div class="session-text">${s.update}</div>
+        <div class="session-work">${s.work}</div>
+      </div>`).join('');
+    bodyHtml += `
+      <div class="panel-section">
+        <div class="panel-section-title">Session Log</div>
+        <div class="session-log">${sessionHtml}</div>
+      </div>`;
+  }
+
+  // Comms log
+  if (deal.comms && deal.comms.length > 0) {
+    const commsHtml = deal.comms.map(c => {
+      const statusClass = c.status.startsWith('APPROVED') ? 'status-approved' : 'status-pending';
+      return `
+        <div class="comms-entry">
+          <div class="comms-date">${c.date} — ${c.file}</div>
+          <span class="comms-status ${statusClass}">${c.status.split(' ')[0]}</span>
+        </div>`;
+    }).join('');
+    bodyHtml += `
+      <div class="panel-section">
+        <div class="panel-section-title">Comms Log</div>
+        <div class="comms-list">${commsHtml}</div>
+      </div>`;
+  }
+
+  document.getElementById("panel-body").innerHTML = bodyHtml;
+  document.getElementById("panel-body").scrollTop = 0;
+}
+
+function closePanel() {
+  selectedId = null;
+  document.getElementById("detail-panel").classList.add("hidden");
+  renderPipeline();
+}
+
+function daysSince(dateStr) {
+  const then = new Date(dateStr);
+  const now = new Date(LAST_REFRESHED);
+  const diff = Math.floor((now - then) / (1000 * 60 * 60 * 24));
+  if (diff === 0) return "today";
+  if (diff === 1) return "1 day";
+  return `${diff} days`;
+}
+
+init();
+</script>
+</body>
+</html>
