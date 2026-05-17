@@ -82,6 +82,28 @@ Wait for their full answer. Append everything they share to the Session Log in d
 
 ---
 
+## FALLBACK — use when stage is missing, unrecognized, or session was interrupted
+
+**If the stage field is missing or unrecognized:**
+Do not guess. Say:
+> "I can see the deal file for [Client Name] but the stage isn't set or I don't recognize it. Can you tell me where this deal stands right now — are you still searching, working on an offer, or already under contract?"
+
+Use their answer to set or correct the stage in deal-file.md, then re-enter the routing decision tree.
+
+**If the deal file is incomplete (missing key fields like deal type, stage, or client info):**
+Flag what's missing and ask the agent to fill it in before routing:
+> "Before I can route this deal, I'm missing [field(s)]. Can you give me that so I have the full picture?"
+
+Update deal-file.md with what they provide, then proceed.
+
+**If a session appears to have been interrupted mid-specialist:**
+Check the last Session Log entry. If it ends abruptly or references unfinished work, summarize what was in progress and ask:
+> "It looks like we were in the middle of [task] last session. Do you want to pick that back up, or is there something new to handle first?"
+
+Route based on their answer.
+
+---
+
 ## NEVER
 
 - Skip agent identification
