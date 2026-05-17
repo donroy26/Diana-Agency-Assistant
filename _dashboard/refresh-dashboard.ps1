@@ -5,7 +5,7 @@
 $ErrorActionPreference = "Stop"
 
 $scriptDir    = Split-Path -Parent $MyInvocation.MyCommand.Path
-$casesDir     = Join-Path $scriptDir "_shared\cases"
+$casesDir     = Join-Path (Join-Path $scriptDir "..") "_shared\cases"
 $dashFile     = Join-Path $scriptDir "dashboard.html"
 $today        = (Get-Date).ToString("yyyy-MM-dd")
 
