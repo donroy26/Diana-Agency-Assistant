@@ -44,14 +44,12 @@ echo.
 
 set LAUNCH_TARGET=%~dp0launch.bat
 set WORK_DIR=%~dp0
-set ICON_PATH=%~dp0diana-ai.ico
 powershell -NoProfile -Command ^
   "$desktop = [Environment]::GetFolderPath('Desktop');" ^
   "$s = New-Object -ComObject WScript.Shell;" ^
   "$sc = $s.CreateShortcut($desktop + '\Dianas Team AI.lnk');" ^
   "$sc.TargetPath = '%LAUNCH_TARGET%';" ^
   "$sc.WorkingDirectory = '%WORK_DIR%';" ^
-  "$sc.IconLocation = '%ICON_PATH%,0';" ^
   "$sc.Description = 'Diana Real Estate Team AI';" ^
   "$sc.Save();" ^
   "Write-Host 'Shortcut saved to ' + $desktop"
